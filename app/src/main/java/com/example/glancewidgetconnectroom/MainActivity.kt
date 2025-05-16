@@ -18,8 +18,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GlanceWidgetConnectRoomTheme {
-                val room = getDataBase(this)
-                val noteRoom = NoteViewModel(room.NoteDao())
+                val room = DatabaseProvider.getDatabase(this)
+                val noteRoom = NoteViewModel(room.NoteDao(),this.applicationContext)
                 CompositionLocalProvider(LocalNoteRoom provides noteRoom) {
                     HomeScreen(this)
                 }

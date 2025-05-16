@@ -53,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.glance.GlanceId
 import androidx.glance.LocalContext
 import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
@@ -94,7 +95,8 @@ fun HomeScreen(context:Context) {
                     Text("All Notes", fontSize = 40.sp, fontWeight = FontWeight.Bold)
                     FilledTonalButton(onClick = {
                         scope.launch {
-                            GlanceWidget().updateAll(context)
+                          val app =   AppClass.appContext as AppClass
+                           app.updateWidget()
                         }
                     }) { Text("Update Widget") }
                 }

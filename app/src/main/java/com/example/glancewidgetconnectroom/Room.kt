@@ -1,6 +1,8 @@
 package com.example.glancewidgetconnectroom
 
+import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
 import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +15,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -41,41 +44,45 @@ abstract class AppDataBase : RoomDatabase() {
     abstract fun NoteDao(): NoteDao
 }
 
-fun getDataBase(context: Context): AppDataBase {
-    return Room
-        .databaseBuilder(context.applicationContext, AppDataBase::class.java, "app_db")
-        .fallbackToDestructiveMigration().build()
-}
+object DatabaseProvider {
+    private var INSTANCE: AppDataBase? = null
 
-class NoteViewModel(private val db: NoteDao) : ViewModel() {
+    fun getDatabase(context: Context): AppDataBase {
+        return INSTANCE ?: synchronized(this) {
+            val instance = Room.databaseBuilder(
+                context.applicationContext,
+                AppDataBase::class.java,
+                "app_db"
+            ).fallbackToDestructiveMigration().build()
+            INSTANCE = instance
+            instance
+        }
+    }
+}
+class NoteViewModel(private val db: NoteDao,private val context: Context) : ViewModel() {
     val notes = db.getAll()
 
     fun addNote(note: Note) {
         viewModelScope.launch {
             db.insert(note)
+            triggerWidgetUpdate()
         }
-        triggerWidgetUpdate()
     }
 
     fun deleteNote(note: Note) {
         viewModelScope.launch {
             db.delete(note)
+            triggerWidgetUpdate()
         }
-        triggerWidgetUpdate()
     }
-    private fun triggerWidgetUpdate() {
-        viewModelScope.launch {
-            GlanceWidget().updateAll(AppClass.appContext)
-        }
+
+    private suspend fun triggerWidgetUpdate() {
+            GlanceWidget().updateAll(context)
     }
 }
 
-class NoteRepository(private val context: Context) {
-    private val dao: NoteDao by lazy {
-        getDataBase(context.applicationContext).NoteDao()
-    }
+class NoteRepository(context: Context) {
+    private val dao = DatabaseProvider.getDatabase(context).NoteDao()
 
-    suspend fun getAllNotes(): List<Note> {
-        return dao.getAll().first()
-    }
+    fun getAllNotes(): Flow<List<Note>> = dao.getAll()
 }

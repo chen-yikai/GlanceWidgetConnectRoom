@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -30,13 +32,14 @@ class GlanceReceiver : GlanceAppWidgetReceiver() {
 
 class GlanceWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val notes = NoteRepository(context).getAllNotes()
 
         provideContent {
+            val notes by NoteRepository(context).getAllNotes().collectAsState(emptyList())
+
             Scaffold(titleBar = {
                 TitleBar(
                     startIcon = ImageProvider(R.drawable.note),
-                    title = "All Notes"
+                    title = "All Notes $id"
                 )
             }, modifier = GlanceModifier.fillMaxSize()) {
                 Column {

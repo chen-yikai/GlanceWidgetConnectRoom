@@ -14,10 +14,14 @@ class AppClass : Application() {
     }
 
     override fun onCreate() {
+        updateWidget()
+        appContext = applicationContext
+        super.onCreate()
+    }
+
+    fun updateWidget(){
         CoroutineScope(Dispatchers.Main).launch {
             GlanceWidget().updateAll(this@AppClass)
         }
-        appContext = applicationContext
-        super.onCreate()
     }
 }
