@@ -62,7 +62,7 @@ import kotlin.math.sin
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomeScreen(context:Context) {
+fun HomeScreen() {
     val noteRoom = LocalNoteRoom.current
     val notes by noteRoom.notes.collectAsState(emptyList())
     var showAddNote by remember { mutableStateOf(false) }
@@ -87,19 +87,7 @@ fun HomeScreen(context:Context) {
             contentPadding = PaddingValues(10.dp)
         ) {
             stickyHeader {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("All Notes", fontSize = 40.sp, fontWeight = FontWeight.Bold)
-                    FilledTonalButton(onClick = {
-                        scope.launch {
-                          val app =   AppClass.appContext as AppClass
-                           app.updateWidget()
-                        }
-                    }) { Text("Update Widget") }
-                }
+                Text("All Notes", fontSize = 40.sp, fontWeight = FontWeight.Bold)
             }
             items(notes) {
                 var showTool by remember { mutableStateOf(false) }

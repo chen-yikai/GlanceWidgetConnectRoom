@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
                 val room = DatabaseProvider.getDatabase(this)
                 val noteRoom = NoteViewModel(room.NoteDao(),this.applicationContext)
                 CompositionLocalProvider(LocalNoteRoom provides noteRoom) {
-                    HomeScreen(this)
+                    HomeScreen()
                 }
             }
         }
